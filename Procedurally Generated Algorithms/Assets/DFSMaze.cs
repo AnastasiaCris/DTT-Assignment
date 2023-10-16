@@ -23,25 +23,38 @@ public class DFSMaze : MonoBehaviour
     private int cellsVisited;
     private Cell currentCell;
     private bool generating;
-    
-    
+
+    private Cell[,] gridArray;//making a 2d grid (array)
+
     /// <summary>
     /// Instantiate all cells in the grid
     /// Setup camera after
     /// </summary>
     private void InstantiateAllCells()
     {
+        gridArray = new Cell[width, height];//[row,column]
+
         startX = -width/2;
         startY = -height/2;
-        for (int i = 0; i < width * height; i++)
+        
+        // Instantiate all cells and set their gridX and gridY properties
+        for (int x = 0; x < width; x++)
         {
-            GameObject cellClone = Instantiate(CellObject, new Vector3(startX + i % width, startY + i / width), quaternion.identity, transform);
-            allCells.Add(cellClone.GetComponent<Cell>());
+            for (int y = 0; y < height; y++)
+            {
+                GameObject cellClone = Instantiate(CellObject, new Vector3(startX + x, startY + y), Quaternion.identity, transform);
+                Cell cell = cellClone.GetComponent<Cell>();
+                cell.gridX = x;
+                cell.gridY = y;
+                gridArray[x, y] = cell;
+
+                allCells.Add(cell);
+            }
         }
 
         foreach (Cell stackItem in allCells)
         {
-            stackItem.AddAdjacentCell();
+            stackItem.CalculateAdjacentCells(gridArray);
         }
 
         //Setting up the camera 
@@ -128,7 +141,9 @@ public class DFSMaze : MonoBehaviour
         cam.transform.position = new Vector3(transform.position.x, transform.position.y, -10); //set position
         
         int biggestNr = height > width ? height : width; //get the biggest nr between height and width
-        float camSize = 2+ biggestNr / 2;
+        
+        float camSize = height > width? 5 + biggestNr / 2 : biggestNr / 2;  
+        
         if (camSize <= 5.5f) camSize = 5.5f; // size can't be smaller then 5.5
         
         cam.orthographicSize = camSize; //set the size

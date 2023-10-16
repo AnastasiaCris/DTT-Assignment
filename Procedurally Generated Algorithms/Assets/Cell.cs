@@ -9,15 +9,19 @@ using Random = UnityEngine.Random;
 public class Cell : MonoBehaviour
 {
     public bool visited;
+    
+    //Walls
     public GameObject up;
     public GameObject down;
     public GameObject left;
     public GameObject right;
-
-    public List<Cell> adjacentCells;
-    [SerializeField]private LayerMask LMaskCell;
-    [SerializeField]private LayerMask LMaskWall;
     
+    //Grid
+    public int gridX;
+    public int gridY;
+    public List<Cell> adjacentCells;
+    
+    //Visualization
     public Image CellIMG;
     [SerializeField]private Color unvisitedCol;
     [SerializeField]private Color visitedCol;
@@ -34,20 +38,40 @@ public class Cell : MonoBehaviour
         yield return new WaitUntil(() => visited);
         CellIMG.color = visitedCol;
     }
-
-    /// draw 4 raycasts to check if there are any cells adjacent to the current one
-    /// add that cell to the adjacentCells list
-    public void AddAdjacentCell()
+    
+    /// Check if a cell's position is within the bounds of the grid
+    private bool IsCellWithinGridBounds(int x, int y, Cell[,] grid)
     {
-        Vector3[] directions = { Vector3.up, Vector3.down, Vector3.left, Vector3.right };
-        RaycastHit hit;
+        return x >= 0 && y >= 0 && x < grid.GetLength(0) && y < grid.GetLength(1);
+    }
 
-        for (int i = 0; i < directions.Length; i++)
+    /// Calculate adjacent cells for this cell within the grid and add them to the adjacentCells list
+    public void CalculateAdjacentCells(Cell[,] grid)
+    {
+        adjacentCells = new List<Cell>();
+
+        // Check and add the top cell
+        if (IsCellWithinGridBounds(gridX, gridY + 1, grid))
         {
-            if (Physics.Raycast(transform.position, directions[i], out hit, 1f, LMaskCell))
-            {
-                adjacentCells.Add(hit.transform.GetComponent<Cell>());
-            }
+            adjacentCells.Add(grid[gridX, gridY + 1]);
+        }
+
+        // Check and add the bottom cell 
+        if (IsCellWithinGridBounds(gridX, gridY - 1, grid))
+        {
+            adjacentCells.Add(grid[gridX, gridY - 1]);
+        }
+
+        // Check and add the left cell
+        if (IsCellWithinGridBounds(gridX - 1, gridY, grid))
+        {
+            adjacentCells.Add(grid[gridX - 1, gridY]);
+        }
+
+        // Check and add the right cell
+        if (IsCellWithinGridBounds(gridX + 1, gridY, grid))
+        {
+            adjacentCells.Add(grid[gridX + 1, gridY]);
         }
     }
 
@@ -74,17 +98,35 @@ public class Cell : MonoBehaviour
     /// <summary>
     /// Destroy the wall between the current cell and the neighbouring cell
     /// </summary>
-    /// <param name="neighbouringCell"></param>
     public void DestroyWalls(Cell neighbouringCell)
     {
-        RaycastHit[] hits;
-        Vector3 dir = neighbouringCell.transform.position - transform.position;
-        dir.Normalize();
-        hits = Physics.RaycastAll(transform.position, dir, 1f, LMaskWall);
+        // Calculate the relative positions of the two cells
+        int dx = neighbouringCell.gridX - gridX;
+        int dy = neighbouringCell.gridY - gridY;
 
-        foreach (RaycastHit hit in hits)
+        // Check if the neighboring cell is to the right
+        if (dx == 1)
         {
-            Destroy(hit.collider.gameObject);
+            Destroy(right);
+            Destroy(neighbouringCell.left);
+        }
+        // Check if the neighboring cell is to the left
+        else if (dx == -1)
+        {
+            Destroy(left);
+            Destroy(neighbouringCell.right);
+        }
+        // Check if the neighboring cell is above
+        else if (dy == 1)
+        {
+            Destroy(up);
+            Destroy(neighbouringCell.down);
+        }
+        // Check if the neighboring cell is below
+        else if (dy == -1)
+        {
+            Destroy(down);
+            Destroy(neighbouringCell.up);
         }
     }
 
