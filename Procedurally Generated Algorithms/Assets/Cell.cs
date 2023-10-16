@@ -1,8 +1,6 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
@@ -22,7 +20,7 @@ public class Cell : MonoBehaviour
     public List<Cell> adjacentCells;
     
     //Visualization
-    public Image CellIMG;
+    public SpriteRenderer CellVisualization;
     [SerializeField]private Color unvisitedCol;
     [SerializeField]private Color visitedCol;
     public Color goingThroughCol;
@@ -32,20 +30,27 @@ public class Cell : MonoBehaviour
         StartCoroutine(ShowVisited());
     }
 
+    /// <summary>
+    /// Visualize if a cell has been visited or not
+    /// </summary>
     IEnumerator ShowVisited()
     {
-        CellIMG.color = unvisitedCol;
+        CellVisualization.color = unvisitedCol;
         yield return new WaitUntil(() => visited);
-        CellIMG.color = visitedCol;
+        CellVisualization.color = visitedCol;
     }
     
+    /// <summary>
     /// Check if a cell's position is within the bounds of the grid
+    /// </summary>
     private bool IsCellWithinGridBounds(int x, int y, Cell[,] grid)
     {
         return x >= 0 && y >= 0 && x < grid.GetLength(0) && y < grid.GetLength(1);
     }
 
+    /// <summary>
     /// Calculate adjacent cells for this cell within the grid and add them to the adjacentCells list
+    /// </summary>
     public void CalculateAdjacentCells(Cell[,] grid)
     {
         adjacentCells = new List<Cell>();
@@ -78,7 +83,6 @@ public class Cell : MonoBehaviour
     /// <summary>
     /// Chooses a random unvisitedCell from the adjacent cells
     /// </summary>
-    /// <returns></returns>
     public Cell ChooseRandomUnvisitedCell()
     {
         List<Cell> unvisistedCells = new List<Cell>();
