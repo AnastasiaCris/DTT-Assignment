@@ -1,13 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
-public class Cell : MonoBehaviour
+public class DFSCell : MonoBehaviour
 {
-    public bool visited;
-    
     //Walls
     public GameObject up;
     public GameObject down;
@@ -17,7 +14,8 @@ public class Cell : MonoBehaviour
     //Grid
     public int gridX;
     public int gridY;
-    public List<Cell> adjacentCells;
+    public List<DFSCell> adjacentCells;
+    public bool visited;
     
     //Visualization
     public SpriteRenderer CellVisualization;
@@ -43,7 +41,7 @@ public class Cell : MonoBehaviour
     /// <summary>
     /// Check if a cell's position is within the bounds of the grid
     /// </summary>
-    private bool IsCellWithinGridBounds(int x, int y, Cell[,] grid)
+    private bool IsCellWithinGridBounds(int x, int y, DFSCell[,] grid)
     {
         return x >= 0 && y >= 0 && x < grid.GetLength(0) && y < grid.GetLength(1);
     }
@@ -51,9 +49,9 @@ public class Cell : MonoBehaviour
     /// <summary>
     /// Calculate adjacent cells for this cell within the grid and add them to the adjacentCells list
     /// </summary>
-    public void CalculateAdjacentCells(Cell[,] grid)
+    public void CalculateAdjacentCells(DFSCell[,] grid)
     {
-        adjacentCells = new List<Cell>();
+        adjacentCells = new List<DFSCell>();
 
         // Check and add the top cell
         if (IsCellWithinGridBounds(gridX, gridY + 1, grid))
@@ -83,11 +81,11 @@ public class Cell : MonoBehaviour
     /// <summary>
     /// Chooses a random unvisitedCell from the adjacent cells
     /// </summary>
-    public Cell ChooseRandomUnvisitedCell()
+    public DFSCell ChooseRandomUnvisitedCell()
     {
-        List<Cell> unvisistedCells = new List<Cell>();
+        List<DFSCell> unvisistedCells = new List<DFSCell>();
 
-        foreach (Cell cell in adjacentCells)
+        foreach (DFSCell cell in adjacentCells)
         {
             if (!cell.visited)
             {
@@ -102,35 +100,35 @@ public class Cell : MonoBehaviour
     /// <summary>
     /// Destroy the wall between the current cell and the neighbouring cell
     /// </summary>
-    public void DestroyWalls(Cell neighbouringCell)
+    public void DestroyWalls(DFSCell neighbouringDfsCell)
     {
         // Calculate the relative positions of the two cells
-        int dx = neighbouringCell.gridX - gridX;
-        int dy = neighbouringCell.gridY - gridY;
+        int dx = neighbouringDfsCell.gridX - gridX;
+        int dy = neighbouringDfsCell.gridY - gridY;
 
         // Check if the neighboring cell is to the right
         if (dx == 1)
         {
             Destroy(right);
-            Destroy(neighbouringCell.left);
+            Destroy(neighbouringDfsCell.left);
         }
         // Check if the neighboring cell is to the left
         else if (dx == -1)
         {
             Destroy(left);
-            Destroy(neighbouringCell.right);
+            Destroy(neighbouringDfsCell.right);
         }
         // Check if the neighboring cell is above
         else if (dy == 1)
         {
             Destroy(up);
-            Destroy(neighbouringCell.down);
+            Destroy(neighbouringDfsCell.down);
         }
         // Check if the neighboring cell is below
         else if (dy == -1)
         {
             Destroy(down);
-            Destroy(neighbouringCell.up);
+            Destroy(neighbouringDfsCell.up);
         }
     }
 

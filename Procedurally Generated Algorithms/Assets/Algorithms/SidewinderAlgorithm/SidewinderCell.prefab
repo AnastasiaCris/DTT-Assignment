@@ -345,9 +345,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5463982969809590716}
-  - component: {fileID: 7382395032879503962}
+  - component: {fileID: -5415349374009021001}
   m_Layer: 0
-  m_Name: Cell2d
+  m_Name: SidewinderCell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -373,7 +373,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7382395032879503962
+--- !u!114 &-5415349374009021001
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -382,21 +382,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 5463982969809590707}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 060f64c4fa643d249afe497b875b8d19, type: 3}
+  m_Script: {fileID: 11500000, guid: 52f5d6ad2d02ab346aabdf6ed15c8e36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  visited: 0
   up: {fileID: 5463982969316986128}
   down: {fileID: 5463982969251843170}
   left: {fileID: 5463982969941372731}
   right: {fileID: 5463982969560130774}
   gridX: 0
   gridY: 0
-  adjacentCells: []
   CellVisualization: {fileID: 2794742722535796451}
-  unvisitedCol: {r: 0, g: 0, b: 0, a: 0.3529412}
-  visitedCol: {r: 0, g: 1, b: 0.24206448, a: 0.3529412}
-  goingThroughCol: {r: 0.8117647, g: 0.7993066, b: 0.07450982, a: 0.3529412}
+  visitedCol: {r: 0, g: 0, b: 0, a: 1}
+  makingPathCol: {r: 0.6313726, g: 0.6313726, b: 0.6313726, a: 1}
+  nextCellCol: {r: 0.5660378, g: 0.12491045, b: 0, a: 1}
 --- !u!1 &5463982969941372731
 GameObject:
   m_ObjectHideFlags: 0
