@@ -20,6 +20,9 @@ public class SidewinderMaze : MonoBehaviour
    private List<SidewinderCell> unvisitedCells = new List<SidewinderCell>();
    private List<SidewinderCell> cellCarvingPath = new List<SidewinderCell>();
 
+   //--------------------------------Generation---------------------------------------------
+
+   
    /// <summary>
    /// Instantiate all cells in the grid
    /// Setup camera after
@@ -64,13 +67,12 @@ public class SidewinderMaze : MonoBehaviour
    ///      a. choose one of the cells in the list to make a passage up
    /// 5. do this until there are no unvisited cells
    /// </summary>
-   /// <returns></returns>
-   private IEnumerator Generation()
+   private IEnumerator Generation() //Made it a coroutine for visualization purposes
    {
       WaitForSeconds waitSec = new WaitForSeconds(secUntilNextCell);
       int x = 0; //value to keep track in which column the current cell is
       
-      //make a passage in the first row
+      //1. make a passage in the first row
       for (int i = 0; i < Width; i++) 
       {
          currentCell = gridArray[i, Height - 1];
@@ -86,7 +88,7 @@ public class SidewinderMaze : MonoBehaviour
          yield return waitSec;
       }
 
-      while (unvisitedCells.Count > 0)
+      while (unvisitedCells.Count > 0) //until all cells have been visited
       {
          for (int h = 2; h <= Height; h++) //whenever a new row starts
          {
@@ -102,28 +104,28 @@ public class SidewinderMaze : MonoBehaviour
             
             while (x < Width) //do this until a row is finished
             {
-               //choose the next cell
-               SidewinderCell nextCell = currentCell.ChooseRandomNeighbouringCell();
-
+               //2. choose the next 'direction' of the current cell
+               SidewinderCell nextDirCell = currentCell.ChooseRandomNeighbouringCell();
+               
                //visualization
-               nextCell.CellVisualization.color = nextCell.nextCellCol;
+               nextDirCell.CellVisualization.color = nextDirCell.nextCellCol;
                
                yield return waitSec;
 
-               if (currentCell.DirectionBetweenCells(nextCell) == Vector2.right) //if next cell is to the right
+               if (currentCell.DirectionBetweenCells(nextDirCell) == Vector2.right) //3. if next cell is to the right
                {
                   //add to list and make it the next current cell
-                  cellCarvingPath.Add(nextCell);
-                  currentCell = nextCell;
+                  cellCarvingPath.Add(nextDirCell);
+                  currentCell = nextDirCell;
                   x = currentCell.gridX;
                   currentCell.CellVisualization.color = currentCell.makingPathCol;
                }
-               else if (currentCell.DirectionBetweenCells(nextCell) == Vector2.up) //if the next cell is on top
+               else if (currentCell.DirectionBetweenCells(nextDirCell) == Vector2.up) //4. if the next cell is on top
                {
                   //visualization
-                  nextCell.CellVisualization.color = nextCell.visitedCol;
+                  nextDirCell.CellVisualization.color = nextDirCell.visitedCol;
                      
-                  //carve a passage up from a random cell in the list and empty the list
+                  //a. carve a passage up from a random cell in the list and empty the list
                   int randomInt = Random.Range(0, cellCarvingPath.Count - 1);
                   cellCarvingPath[randomInt].DestroyWalls(Vector2.up, gridArray);
                   
@@ -156,6 +158,9 @@ public class SidewinderMaze : MonoBehaviour
          }
       }
    }
+   
+   //--------------------------------Regeneration---------------------------------------------
+
 
    /// <summary>
    /// Start a new Wilson maze generation

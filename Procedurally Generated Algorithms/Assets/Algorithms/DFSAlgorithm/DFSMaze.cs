@@ -21,7 +21,8 @@ public class DFSMaze : MonoBehaviour
     private List<DFSCell> allCells = new List<DFSCell>();
     private Stack<DFSCell> cellStack = new Stack<DFSCell>();
 
-    
+    //--------------------------------Generation---------------------------------------------
+
     /// <summary>
     /// Instantiate all cells in the grid
     /// Setup camera after
@@ -61,7 +62,7 @@ public class DFSMaze : MonoBehaviour
     ///   a. if current cell has adjacent cells that are not visited => choose one at random (break the wall between)
     ///   b. else if all adjacent cells have been visited => go back to the previous cell
     /// 2. do this until all cells have been visited
-    private IEnumerator Generate() //made a coroutine for visualization purposes
+    private IEnumerator Generate() //Made it a coroutine for visualization purposes
     {
         WaitForSeconds waitSec = new WaitForSeconds(secUntilNextCell);
 
@@ -113,6 +114,8 @@ public class DFSMaze : MonoBehaviour
         return false;
     }
     
+    //--------------------------------Regeneration---------------------------------------------
+
     /// <summary>
     /// Start a new DFS maze generation
     /// </summary>

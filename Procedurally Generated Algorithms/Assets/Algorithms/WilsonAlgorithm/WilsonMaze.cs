@@ -22,6 +22,8 @@ public class WilsonMaze : MonoBehaviour
    private List<WilsonsCell> unvisitedCells = new List<WilsonsCell>();
    private List<WilsonsCell> cellPath = new List<WilsonsCell>();
 
+   //--------------------------------Generation---------------------------------------------
+
    /// <summary>
    /// Instantiate all cells in the grid
    /// Setup camera after
@@ -67,7 +69,7 @@ public class WilsonMaze : MonoBehaviour
    /// 5. Else -> Starting from the first cell in 2. remove all walls between the cells to complete the path and make the cells visited
    /// 6. If all cells have not been visited -> Go to 2
    /// </summary>
-   private IEnumerator Generation()
+   private IEnumerator Generation() //Made it a coroutine for visualization purposes
    {
       WaitForSecondsRealtime waitSec = new WaitForSecondsRealtime(secUntilNextCell);
       
@@ -168,6 +170,9 @@ public class WilsonMaze : MonoBehaviour
          yield return waitSec;
       }
    }
+   
+   //--------------------------------Regeneration---------------------------------------------
+
 
    /// <summary>
    /// Start a new Wilson maze generation

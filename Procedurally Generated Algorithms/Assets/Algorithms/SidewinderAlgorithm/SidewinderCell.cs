@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -20,6 +19,7 @@ public class SidewinderCell : MonoBehaviour
     public Color visitedCol;
     public Color makingPathCol;
     public Color nextCellCol;
+    
 
     /// <summary>
     /// Check if a cell's position is within the bounds of the grid
@@ -61,8 +61,6 @@ public class SidewinderCell : MonoBehaviour
     /// <summary>
     /// Gets the direction where the neighbouring cell is situated in relation to the current cell
     /// </summary>
-    /// <param name="neighbouringCell"></param>
-    /// <returns></returns>
     public Vector2 DirectionBetweenCells(SidewinderCell neighbouringCell)
     {
         Vector2 dir = new Vector2(neighbouringCell.gridX - gridX, neighbouringCell.gridY - gridY);
