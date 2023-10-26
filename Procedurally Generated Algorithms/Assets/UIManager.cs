@@ -25,13 +25,13 @@ public class UIManager : MonoBehaviour
     /// <summary>
     /// Setting up camera position and size to always be in the middle of the maze and always be able to see the whole maze
     /// </summary>
-    public void SetUpCamera()
+    public void SetUpCamera(int width,int height)
     {
         Camera cam = Camera.main;
         
-        int biggestNr = DFSMaze.Height > DFSMaze.Width ? DFSMaze.Height : DFSMaze.Width; //get the biggest nr between height and width
+        int biggestNr = height > width ? height : width; //get the biggest nr between height and width
         
-        minZoom = DFSMaze.Height >= DFSMaze.Width? 5 + biggestNr / 2 : biggestNr / 2;  
+        minZoom = height >= width? 5 + biggestNr / 2 : biggestNr / 2;  
         
         if (minZoom <= maxZoom) minZoom = maxZoom; // size can't be smaller then 5.5
         
@@ -111,6 +111,7 @@ public class UIManager : MonoBehaviour
         DFSMaze.Width = parseW;
         WilsonMaze.Width = parseW;
         SidewinderMaze.Width = parseW;
+        RecursiveDivisionMaze.Width = parseW;
     }
     
     /// <summary>
@@ -137,6 +138,7 @@ public class UIManager : MonoBehaviour
         DFSMaze.Height = parseH;
         WilsonMaze.Height = parseH;
         SidewinderMaze.Height = parseH;
+        RecursiveDivisionMaze.Height = parseH;
     }
     
 }

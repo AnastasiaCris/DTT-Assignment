@@ -56,7 +56,7 @@ public class SidewinderMaze : MonoBehaviour
          stackItem.CalculateAdjacentCells(gridArray);
       }
         
-      uiMan.SetUpCamera();
+      uiMan.SetUpCamera(Width, Height);
    }
    
    /// <summary>

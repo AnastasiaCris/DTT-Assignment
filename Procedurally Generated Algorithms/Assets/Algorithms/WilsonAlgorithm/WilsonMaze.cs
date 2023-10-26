@@ -57,7 +57,7 @@ public class WilsonMaze : MonoBehaviour
          stackItem.CalculateAdjacentCells(gridArray);
       }
         
-      uiMan.SetUpCamera();
+      uiMan.SetUpCamera(Width, Height);
    }
    
    /// <summary>
