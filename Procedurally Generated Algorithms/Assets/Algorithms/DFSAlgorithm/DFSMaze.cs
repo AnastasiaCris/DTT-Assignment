@@ -55,7 +55,7 @@ public class DFSMaze : MonoBehaviour
             stackItem.CalculateAdjacentCells(gridArray);
         }
         
-        uiMan.SetUpCamera();
+        uiMan.SetUpCamera(Width, Height);
     }
 
     /// 1. select a random cell to start from - and make it visited
