@@ -18,7 +18,6 @@ public class DFSCell : BaseCell
 
     //-------------------------------------------------SETUP VARIABLES-------------------------------------
 
-
     /// <summary>
     /// Visualizes and sets the visited cell
     /// </summary>

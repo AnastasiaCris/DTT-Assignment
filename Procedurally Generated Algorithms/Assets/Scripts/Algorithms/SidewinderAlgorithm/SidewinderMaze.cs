@@ -70,7 +70,7 @@ public class SidewinderMaze : MonoBehaviour
       foreach (var cell in activatedCells)
       {
          cell.gameObject.SetActive(false);
-         cell.SetCellCol(cell.UnVisitedCol);
+         cell.SetCellCol(cell.UnvisitedCol);
          pooledCells.Enqueue(cell);
          activeCells.Dequeue();
       }
@@ -130,7 +130,6 @@ public class SidewinderMaze : MonoBehaviour
       for (int i = 0; i < Width; i++) 
       {
          currentCell = gridArray[i, Height - 1];
-         currentCell.gameObject.name = "First Row " + i;
          unvisitedCells.Remove(currentCell);
          
          //visualization
@@ -138,10 +137,8 @@ public class SidewinderMaze : MonoBehaviour
          
          if(i < Width - 1)
             currentCell.DestroyWalls(Vector2.right, gridArray);
-         
-         yield return waitSec;
       }
-
+      
       while (unvisitedCells.Count > 0) //until all cells have been visited
       {
          for (int h = 2; h <= Height; h++) //whenever a new row starts
@@ -151,6 +148,7 @@ public class SidewinderMaze : MonoBehaviour
             unvisitedCells.Remove(currentCell);
             
             x = currentCell.GridX;
+            
             //visualization
             currentCell.SetCellCol(currentCell.MakingPathCol);
             

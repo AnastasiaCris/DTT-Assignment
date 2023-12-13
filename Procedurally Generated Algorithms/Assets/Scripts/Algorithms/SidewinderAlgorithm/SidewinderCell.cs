@@ -3,14 +3,13 @@ using UnityEngine;
 
 public class SidewinderCell : BaseCell
 {
-    
     //Grid
     private List<SidewinderCell> adjacentCells;
     public int GridX { get { return gridX;}}
     
     //Visualization
     [SerializeField] private SpriteRenderer CellVisualization;
-    [field:SerializeField]public Color UnVisitedCol { get; private set; }
+    [field:SerializeField]public Color UnvisitedCol { get; private set; }
     [field:SerializeField]public Color VisitedCol { get; private set; }
     [field:SerializeField]public Color MakingPathCol { get; private set; }
     [field:SerializeField]public Color NextCellCol { get; private set; }

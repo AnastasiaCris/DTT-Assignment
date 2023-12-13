@@ -4,8 +4,8 @@ MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
-  - horizontalWall: {fileID: 6707727107326920800, guid: ab493a932336bc24a9bca66995470e2d, type: 3}
-  - verticalWall: {fileID: 1769077162265255720, guid: 47bbc838b1c7b6541ac7b1c1b86adbb3, type: 3}
+  - uiMan: {instanceID: 0}
+  - wallPrefab: {fileID: 6707727107326920800, guid: ab493a932336bc24a9bca66995470e2d, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Mathematics;
+using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -13,31 +13,100 @@ public class RecursiveDivisionMaze : MonoBehaviour
     [SerializeField] private float secUntilNextCell = 1;
     
     //walls
-    [SerializeField] private GameObject horizontalWall, verticalWall;
+    [SerializeField] private GameObject wallPrefab;
     private List<GameObject> wallPathing = new List<GameObject>();//a series of walls made before a passage is carved through one of them
     
     //Grid
     public static int Width = 5;
     public static int Height = 5;
     private float startX, startY;
-
     
+    //Object Pooling
+    private Queue<GameObject> pooledWalls = new Queue<GameObject>();
+    private Queue<GameObject> activeWalls = new Queue<GameObject>();
+    private int amountToPool = 25;
+
+    //--------------------------------Object Pooling---------------------------------------------
+
+    private void Awake()
+    {
+        PoolCells();
+    }
+
+    /// <summary>
+    /// Instantiates new walls and adds them to the queue
+    /// </summary>
+    private void PoolCells()
+    {
+        for (int i = 0; i < amountToPool; i++)
+        {
+            GameObject wall = Instantiate(wallPrefab, Vector3.zero, Quaternion.identity, transform);
+            wall.SetActive(false);
+            pooledWalls.Enqueue(wall);
+        }
+    }
+    
+    /// <summary>
+    /// Returns a pooled wall object
+    /// </summary>
+    private GameObject ReturnPooledObject(bool horizontal)
+    {
+        if (pooledWalls.Count == 0)
+        {
+            PoolCells();
+        }
+        GameObject newWall = pooledWalls.Dequeue();
+        activeWalls.Enqueue(newWall);
+
+        newWall.transform.rotation = Quaternion.Euler(0, 0, horizontal ? 0 : 90);
+
+        newWall.gameObject.SetActive(true);
+        return newWall;
+    }
+    
+    /// <summary>
+    /// Deactivates all active walls
+    /// </summary>
+    private void DeactivateAllWalls()
+    {
+        List<GameObject> activatedCells = activeWalls.ToList();
+        
+        foreach (var cell in activatedCells)
+        {
+            cell.SetActive(false);
+            pooledWalls.Enqueue(cell);
+            activeWalls.Dequeue();
+        }
+    }
+
+    //--------------------------------GENERATION---------------------------------------------
+
+    /// <summary>
+    /// Creates outside walls
+    /// </summary>
     private void SetUpGrid()
     {
+        float offset = 0.5f;
+        
         startX = -(float)Width / 2;
         startY = -(float)Height / 2;
+
         
-        //instantiate outside walls
+        //create outside walls
         for (int x = 0; x < Width; x++)
         {
-            Instantiate(horizontalWall, new Vector3(startX + x, startY - 0.5f), Quaternion.identity, transform); //bottom
-            Instantiate(horizontalWall, new Vector3(startX + x, startY + Height - 0.5f), Quaternion.identity, transform); //top
+            GameObject bottomWall = ReturnPooledObject(true);
+            bottomWall.transform.position = new Vector3(startX + x, startY - offset);
+            GameObject topWall = ReturnPooledObject(true);
+            topWall.transform.position = new Vector3(startX + x, startY + Height - offset);
         }
 
         for (int y = 0; y < Height; y++)
         {
-            Instantiate(verticalWall, new Vector3(startX - 0.5f, startY + y), Quaternion.identity, transform); //left
-            Instantiate(verticalWall, new Vector3(startX + Width - 0.5f, startY + y), Quaternion.identity, transform); //right
+            GameObject leftWall = ReturnPooledObject(false);
+            leftWall.transform.position = new Vector3(startX - offset, startY + y);
+            GameObject rightWall = ReturnPooledObject(false);
+            rightWall.transform.position = new Vector3(startX + Width - offset, startY + y);
         }
         
         uiMan.SetUpCamera(Width, Height);
@@ -55,7 +124,7 @@ public class RecursiveDivisionMaze : MonoBehaviour
     /// <param name="height"> The width of the current chamber within the maze. </param>
     /// <param name="waitSec"> How many sec to wait in between wall generations </param>
     /// <returns></returns>
-    IEnumerator GenerateMaze(int x, int y, int width, int height, WaitForSeconds waitSec)
+    private IEnumerator GenerateMaze(int x, int y, int width, int height, WaitForSeconds waitSec)
     {
         if (width < 2 || height < 2) // if the size of the chamber is too small stop the generation
         {
@@ -92,7 +161,7 @@ public class RecursiveDivisionMaze : MonoBehaviour
     /// <param name="y1"> the y of the start position of the wall </param>
     /// <param name="x2"> the x of the end position of the wall </param>
     /// <param name="y2"> the y of the end position of the wall </param>
-    private void CreateWall(float x1, float y1, float x2, float y2)
+    private void CreateWall(int x1, int y1, int x2, int y2)
     {
         bool horizontal = x1 == x2 ? false : true;
 
@@ -103,12 +172,13 @@ public class RecursiveDivisionMaze : MonoBehaviour
         for (int i = 0; i < length; i++)
         {
             position = new Vector2(horizontal ? startX + x1 + i : startX + x1  - 0.5f,horizontal ? startY + y1 - 0.5f  : startY + y1 + i );
-            GameObject wall = Instantiate(horizontal ? horizontalWall : verticalWall, position, quaternion.identity, transform);
+            GameObject wall = ReturnPooledObject(horizontal);
+            wall.transform.position = position;
             wallPathing.Add(wall);
         }
         
         int randInt = Random.Range(0, wallPathing.Count);
-        Destroy(wallPathing[randInt]); //make a passage
+        wallPathing[randInt].SetActive(false);//make a passage
         wallPathing.Clear();
     }
 
@@ -121,10 +191,7 @@ public class RecursiveDivisionMaze : MonoBehaviour
     /// </summary>
     public void Regenerate()
     {
-        for (int i = 0; i < transform.childCount; i++)//destroy all walls
-        {
-            Destroy(transform.GetChild(i).gameObject);
-        }
+        DestroyMaze();
 
         SetUpGrid();
     }
@@ -134,12 +201,6 @@ public class RecursiveDivisionMaze : MonoBehaviour
     /// </summary>
     public void DestroyMaze()
     {
-        if (transform.childCount > 0)
-        {
-            for (int i = 0; i < transform.childCount; i++)//destroy all walls
-            {
-                Destroy(transform.GetChild(i).gameObject);
-            }
-        }
+        DeactivateAllWalls();
     }
 }

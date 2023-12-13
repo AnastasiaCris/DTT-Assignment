@@ -391,7 +391,7 @@ MonoBehaviour:
   right: {fileID: 5463982969560130774}
   CellVisualization: {fileID: 2794742722535796451}
   <UnVisitedCol>k__BackingField: {r: 1, g: 1, b: 1, a: 1}
-  <VisitedCol>k__BackingField: {r: 0.48235294, g: 0.48235294, b: 0.48235294, a: 1}
+  <VisitedCol>k__BackingField: {r: 0, g: 0, b: 0, a: 1}
   <MakingPathCol>k__BackingField: {r: 0.3924975, g: 0.0029369951, b: 0.6226415, a: 1}
   <NextCellCol>k__BackingField: {r: 0.48235294, g: 0.48235294, b: 0.48235294, a: 1}
 --- !u!1 &5463982969941372731

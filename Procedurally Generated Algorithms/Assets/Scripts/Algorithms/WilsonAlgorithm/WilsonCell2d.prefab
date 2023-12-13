@@ -389,10 +389,10 @@ MonoBehaviour:
   down: {fileID: 5463982969251843170}
   left: {fileID: 5463982969941372731}
   right: {fileID: 5463982969560130774}
-  <UnvisitedCol>k__BackingField: {r: 1, g: 1, b: 1, a: 1}
-  <VisitedCol>k__BackingField: {r: 0, g: 0, b: 0, a: 1}
-  <MakingPathCol>k__BackingField: {r: 0.48235294, g: 0.48235294, b: 0.48235294, a: 1}
-  <CurrentCellCol>k__BackingField: {r: 0.39215687, g: 0.003921569, b: 0.62352943, a: 1}
+  makingPathCol: {r: 0.48235294, g: 0.48235294, b: 0.48235294, a: 1}
+  unvisitedCol: {r: 1, g: 1, b: 1, a: 1}
+  visitedCol: {r: 0, g: 0, b: 0, a: 0}
+  currentCellCol: {r: 0.39215687, g: 0.003921569, b: 0.62352943, a: 1}
   cellSprite: {fileID: 2794742722535796451}
 --- !u!1 &5463982969941372731
 GameObject:

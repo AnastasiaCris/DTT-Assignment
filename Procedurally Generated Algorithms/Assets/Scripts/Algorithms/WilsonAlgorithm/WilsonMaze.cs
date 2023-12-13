@@ -129,11 +129,8 @@ public class WilsonMaze : MonoBehaviour
       // SELECT one random cell and mark it as visited
       int randomInt = Random.Range(0, unvisitedCells.Count);
       
-      unvisitedCells[randomInt].SetVisited(true); 
-      
-      //visualization
-      unvisitedCells[randomInt].SetCellCol(unvisitedCells[randomInt].VisitedCol);
-      
+      unvisitedCells[randomInt].SetVisited(true);
+
       unvisitedCells.Remove(unvisitedCells[randomInt]);
 
       yield return waitSec; 
@@ -145,8 +142,6 @@ public class WilsonMaze : MonoBehaviour
       
       //visualization
       currentCell.SetCurrentPathfinding(true);
-      currentCell.SetCellCol(currentCell.MakingPathCol);
-      currentCell.SetCellCol(currentCell.CurrentCellCol);
 
       yield return waitSec;
 
@@ -163,7 +158,7 @@ public class WilsonMaze : MonoBehaviour
                for (int i = cellPath.Count - 1; i > until;)
                {
                   cellPath[i].SetCurrentPathfinding(false);
-                  cellPath[i].SetCellCol(cellPath[i].UnvisitedCol);
+                  cellPath[i].SetVisited(false);
                   cellPath[i].SetDirection(Vector2.zero);
                   cellPath.Remove(cellPath[i]);
                   i--;
@@ -176,7 +171,7 @@ public class WilsonMaze : MonoBehaviour
             //visualization
             if (cellPath.Contains(currentCell))
             {
-               currentCell.SetCellCol(currentCell.MakingPathCol);
+               currentCell.SetFormingPathCol();
             }
 
             //set the new current cell
@@ -188,8 +183,6 @@ public class WilsonMaze : MonoBehaviour
 
                //visualization
                currentCell.SetCurrentPathfinding(true);
-               currentCell.SetCellCol(currentCell.MakingPathCol);
-               currentCell.SetCellCol(currentCell.CurrentCellCol);
             }
 
          }
@@ -201,9 +194,6 @@ public class WilsonMaze : MonoBehaviour
                cellPath[i].SetVisited(true);
                cellPath[i].SetCurrentPathfinding(false);
                unvisitedCells.Remove(cellPath[i]);
-               
-               //Visualization
-               cellPath[i].SetCellCol(cellPath[i].VisitedCol);
             }
             cellPath.Clear();
             
@@ -215,9 +205,6 @@ public class WilsonMaze : MonoBehaviour
 
                //visualization
                currentCell.SetCurrentPathfinding(true);
-               currentCell.SetCellCol(currentCell.MakingPathCol);
-               currentCell.SetCellCol(currentCell.CurrentCellCol);
-
             }
          }
          yield return waitSec;

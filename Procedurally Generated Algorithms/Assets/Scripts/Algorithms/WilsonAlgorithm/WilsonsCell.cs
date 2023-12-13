@@ -15,11 +15,11 @@ public class WilsonsCell : BaseCell
     private List<WilsonsCell> adjacentCells;
     
     //Visualization
-    [field:SerializeField]public Color UnvisitedCol { get; private set; }
-    [field:SerializeField]public Color VisitedCol { get; private set; }
-    [field:SerializeField]public Color MakingPathCol { get; private set; }
-    [field:SerializeField]public Color CurrentCellCol { get; private set; }
-    [SerializeField]private SpriteRenderer cellSprite;
+    [SerializeField] private Color visitedCol;
+    [SerializeField] private Color unvisitedCol;
+    [SerializeField] private Color makingPathCol;
+    [SerializeField] private Color currentCellCol;
+    [SerializeField] private SpriteRenderer cellSprite;
 
 
     //-------------------------------------------------SETUP VARIABLES-------------------------------------
@@ -29,7 +29,7 @@ public class WilsonsCell : BaseCell
     public void SetVisited(bool visit)
     {
         Visited = visit;
-        cellSprite.color = Visited ? VisitedCol : UnvisitedCol;
+        cellSprite.color = Visited ? visitedCol : unvisitedCol;
     } 
     
     /// <summary>
@@ -38,6 +38,7 @@ public class WilsonsCell : BaseCell
     public void SetCurrentPathfinding(bool inPathfinding)
     {
         CurrentlyInPathFinding = inPathfinding;
+        if(inPathfinding)cellSprite.color = currentCellCol;
     } 
     
     /// <summary>
@@ -48,9 +49,12 @@ public class WilsonsCell : BaseCell
         direction = dir;
     }
 
-    public void SetCellCol(Color col)
+    /// <summary>
+    /// Changes the cell to the making path color
+    /// </summary>
+    public void SetFormingPathCol()
     {
-        cellSprite.color = col;
+        cellSprite.color = makingPathCol;
     }
     
     //-------------------------------------------------NEIGHBOURING CELLS-------------------------------------

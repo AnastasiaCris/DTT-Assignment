@@ -2538,7 +2538,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   uiMan: {fileID: 2129901108}
   cellObject: {fileID: 4512285537973460692, guid: c23bdb5da7a27e141874bad1e9c24fe2, type: 3}
-  secUntilNextCell: 0.1
+  secUntilNextCell: 0
 --- !u!1 &1502367885
 GameObject:
   m_ObjectHideFlags: 0
@@ -2917,8 +2917,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   uiMan: {fileID: 2129901108}
   secUntilNextCell: 0.1
-  horizontalWall: {fileID: 6707727107326920800, guid: ab493a932336bc24a9bca66995470e2d, type: 3}
-  verticalWall: {fileID: 1769077162265255720, guid: 47bbc838b1c7b6541ac7b1c1b86adbb3, type: 3}
+  wallPrefab: {fileID: 6707727107326920800, guid: ab493a932336bc24a9bca66995470e2d, type: 3}
 --- !u!1 &1596230786
 GameObject:
   m_ObjectHideFlags: 0
