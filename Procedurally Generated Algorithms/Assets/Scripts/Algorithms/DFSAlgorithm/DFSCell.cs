@@ -1,43 +1,35 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class DFSCell : MonoBehaviour
+public class DFSCell : BaseCell
 {
-    //Walls
-    public GameObject up;
-    public GameObject down;
-    public GameObject left;
-    public GameObject right;
-    
+
     //Grid
-    public int gridX;
-    public int gridY;
-    public List<DFSCell> adjacentCells;
-    public bool visited;
-    
+    public bool Visited { get; private set; }
+    public List<DFSCell> AdjacentCells { get; private set; }
+
     //Visualization
-    public SpriteRenderer CellVisualization;
+    [field:SerializeField]public SpriteRenderer CellVisualization { get; private set; }
+    public Color GoingThroughCol { get; private set; }
     [SerializeField]private Color unvisitedCol;
     [SerializeField]private Color visitedCol;
-    public Color goingThroughCol;
 
-    private void Start()
-    {
-        StartCoroutine(ShowVisited());
-    }
+
+    //-------------------------------------------------SETUP VARIABLES-------------------------------------
+
 
     /// <summary>
-    /// Visualize if a cell has been visited or not
+    /// Visualizes and sets the visited cell
     /// </summary>
-    IEnumerator ShowVisited()
+    public void SetVisited(bool visit)
     {
-        CellVisualization.color = unvisitedCol;
-        yield return new WaitUntil(() => visited);
-        CellVisualization.color = visitedCol;
+        Visited = visit;
+        CellVisualization.color = Visited ? visitedCol : unvisitedCol;
     }
-    
+
+    //-------------------------------------------------NEIGHBOURING CELLS-------------------------------------
+
     /// <summary>
     /// Check if a cell's position is within the bounds of the grid
     /// </summary>
@@ -51,30 +43,30 @@ public class DFSCell : MonoBehaviour
     /// </summary>
     public void CalculateAdjacentCells(DFSCell[,] grid)
     {
-        adjacentCells = new List<DFSCell>();
+        AdjacentCells = new List<DFSCell>();
 
         // Check and add the top cell
         if (IsCellWithinGridBounds(gridX, gridY + 1, grid))
         {
-            adjacentCells.Add(grid[gridX, gridY + 1]);
+            AdjacentCells.Add(grid[gridX, gridY + 1]);
         }
 
         // Check and add the bottom cell 
         if (IsCellWithinGridBounds(gridX, gridY - 1, grid))
         {
-            adjacentCells.Add(grid[gridX, gridY - 1]);
+            AdjacentCells.Add(grid[gridX, gridY - 1]);
         }
 
         // Check and add the left cell
         if (IsCellWithinGridBounds(gridX - 1, gridY, grid))
         {
-            adjacentCells.Add(grid[gridX - 1, gridY]);
+            AdjacentCells.Add(grid[gridX - 1, gridY]);
         }
 
         // Check and add the right cell
         if (IsCellWithinGridBounds(gridX + 1, gridY, grid))
         {
-            adjacentCells.Add(grid[gridX + 1, gridY]);
+            AdjacentCells.Add(grid[gridX + 1, gridY]);
         }
     }
 
@@ -85,9 +77,9 @@ public class DFSCell : MonoBehaviour
     {
         List<DFSCell> unvisistedCells = new List<DFSCell>();
 
-        foreach (DFSCell cell in adjacentCells)
+        foreach (DFSCell cell in AdjacentCells)
         {
-            if (!cell.visited)
+            if (!cell.Visited)
             {
                 unvisistedCells.Add(cell);
             }
@@ -109,26 +101,26 @@ public class DFSCell : MonoBehaviour
         // Check if the neighboring cell is to the right
         if (dx == 1)
         {
-            Destroy(right);
-            Destroy(neighbouringDfsCell.left);
+            right.SetActive(false);
+            neighbouringDfsCell.left.SetActive(false);
         }
         // Check if the neighboring cell is to the left
         else if (dx == -1)
         {
-            Destroy(left);
-            Destroy(neighbouringDfsCell.right);
+            left.SetActive(false);
+            neighbouringDfsCell.right.SetActive(false);
         }
         // Check if the neighboring cell is above
         else if (dy == 1)
         {
-            Destroy(up);
-            Destroy(neighbouringDfsCell.down);
+            up.SetActive(false);
+            neighbouringDfsCell.down.SetActive(false);
         }
         // Check if the neighboring cell is below
         else if (dy == -1)
         {
-            Destroy(down);
-            Destroy(neighbouringDfsCell.up);
+            down.SetActive(false);
+            neighbouringDfsCell.up.SetActive(false);
         }
     }
 

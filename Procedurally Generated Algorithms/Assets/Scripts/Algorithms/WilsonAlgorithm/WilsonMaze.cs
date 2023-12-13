@@ -1,6 +1,6 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -15,44 +15,97 @@ public class WilsonMaze : MonoBehaviour
    private WilsonsCell[,] gridArray;
    
    //Generation
-   [SerializeField] private GameObject cellObject;
-   private float secUntilNextCell = 0;
+   [SerializeField] private WilsonsCell cellObject;
+   [SerializeField] private float secUntilNextCell = 0.1f;
    private WilsonsCell currentCell;
-   private List<WilsonsCell> allCells = new List<WilsonsCell>();
    private List<WilsonsCell> unvisitedCells = new List<WilsonsCell>();
    private List<WilsonsCell> cellPath = new List<WilsonsCell>();
+   
+   //Object Pooling
+   private Queue<WilsonsCell> pooledCells = new Queue<WilsonsCell>();
+   private Queue<WilsonsCell> activeCells = new Queue<WilsonsCell>();
+   private int amountToPool = 25;
+
+   //--------------------------------Object Pooling---------------------------------------------
+
+   private void Awake()
+   {
+      PoolCells();
+   }
+
+   /// <summary>
+   /// Instantiates new cells and adds them to the queue
+   /// </summary>
+   private void PoolCells()
+   {
+      for (int i = 0; i < amountToPool; i++)
+      {
+         WilsonsCell cellClone = Instantiate(cellObject, Vector3.zero, Quaternion.identity, transform);
+         cellClone.gameObject.SetActive(false);
+         pooledCells.Enqueue(cellClone);
+      }
+   }
+    
+   /// <summary>
+   /// Returns an inactive cell object
+   /// </summary>
+   private WilsonsCell ReturnPooledObject()
+   {
+      if (pooledCells.Count == 0)
+      {
+         PoolCells();
+      }
+      WilsonsCell newCell = pooledCells.Dequeue();
+      activeCells.Enqueue(newCell);
+      newCell.gameObject.SetActive(true);
+      return newCell;
+   }
+    
+   /// <summary>
+   /// Deactivates all active cells and makes them unvisited
+   /// </summary>
+   private void DeactivateAllCells()
+   {
+      List<WilsonsCell> activatedCells = activeCells.ToList();
+        
+      foreach (var cell in activatedCells)
+      {
+         cell.gameObject.SetActive(false);
+         cell.SetVisited(false);
+         pooledCells.Enqueue(cell);
+         activeCells.Dequeue();
+      }
+   }
 
    //--------------------------------Generation---------------------------------------------
 
    /// <summary>
-   /// Instantiate all cells in the grid
+   /// Activates and sets all cells in the grid
    /// Setup camera after
    /// </summary>
-   private void InstantiateAllCells()
+   private void ActivateAllCells()
    {
       //create the grid
       gridArray = new WilsonsCell[Width, Height];
 
-      startX = -Width/2;
-      startY = -Height/2;
+      startX = -(float)Width/2;
+      startY = -(float)Height/2;
         
-      // Instantiate all cells and set their gridX and gridY properties
+      // Activate all cells and set their gridX and gridY properties
       for (int x = 0; x < Width; x++)
       {
          for (int y = 0; y < Height; y++)
          {
-            GameObject cellClone = Instantiate(cellObject, new Vector3(startX + x, startY + y), Quaternion.identity, transform);
-            WilsonsCell wilsonCell = cellClone.GetComponent<WilsonsCell>();
-            wilsonCell.gridX = x;
-            wilsonCell.gridY = y;
+            WilsonsCell wilsonCell = ReturnPooledObject();
+            wilsonCell.transform.position = new Vector3(startX + x, startY + y);
+            wilsonCell.SetGridProperties(x,y);
             gridArray[x, y] = wilsonCell;
             
-            allCells.Add(wilsonCell);
             unvisitedCells.Add(wilsonCell);
          }
       }
 
-      foreach (WilsonsCell stackItem in allCells)
+      foreach (WilsonsCell stackItem in activeCells)
       {
          stackItem.CalculateAdjacentCells(gridArray);
       }
@@ -76,10 +129,10 @@ public class WilsonMaze : MonoBehaviour
       // SELECT one random cell and mark it as visited
       int randomInt = Random.Range(0, unvisitedCells.Count);
       
-      unvisitedCells[randomInt].visited = true; 
+      unvisitedCells[randomInt].SetVisited(true); 
       
       //visualization
-      unvisitedCells[randomInt].CellVisualization.color = unvisitedCells[randomInt].visitedCol;
+      unvisitedCells[randomInt].SetCellCol(unvisitedCells[randomInt].VisitedCol);
       
       unvisitedCells.Remove(unvisitedCells[randomInt]);
 
@@ -91,27 +144,27 @@ public class WilsonMaze : MonoBehaviour
       cellPath.Add(currentCell);
       
       //visualization
-      currentCell.currentlyInPathFinding = true;
-      currentCell.CellVisualization.color = currentCell.makingPathCol;
-      currentCell.CellVisualization.color = currentCell.currentCellCol;
+      currentCell.SetCurrentPathfinding(true);
+      currentCell.SetCellCol(currentCell.MakingPathCol);
+      currentCell.SetCellCol(currentCell.CurrentCellCol);
 
       yield return waitSec;
 
       while (unvisitedCells.Count > 0) //while there's still unvisited cells
       {
-         if (!currentCell.visited) //if current cell is not visited
+         if (!currentCell.Visited) //if current cell is not visited
          {
             //SELECT random cell adjacent to current cell
             WilsonsCell nextCell = currentCell.ChooseRandomNeighbouringCell(); 
 
-            if (nextCell.currentlyInPathFinding) // if the next cell would end up looping with a cell from the path - delete the loop and start from next cell
+            if (nextCell.CurrentlyInPathFinding) // if the next cell would end up looping with a cell from the path - delete the loop and start from next cell
             {
                int until = cellPath.IndexOf(nextCell);
                for (int i = cellPath.Count - 1; i > until;)
                {
-                  cellPath[i].currentlyInPathFinding = false;
-                  cellPath[i].CellVisualization.color = cellPath[i].unvisitedCol;
-                  cellPath[i].direction = Vector2.zero;
+                  cellPath[i].SetCurrentPathfinding(false);
+                  cellPath[i].SetCellCol(cellPath[i].UnvisitedCol);
+                  cellPath[i].SetDirection(Vector2.zero);
                   cellPath.Remove(cellPath[i]);
                   i--;
                }
@@ -123,20 +176,20 @@ public class WilsonMaze : MonoBehaviour
             //visualization
             if (cellPath.Contains(currentCell))
             {
-               currentCell.CellVisualization.color = currentCell.makingPathCol;
+               currentCell.SetCellCol(currentCell.MakingPathCol);
             }
 
             //set the new current cell
             currentCell = nextCell; 
 
-            if (!currentCell.visited) //check if the next/current cell is not visited
+            if (!currentCell.Visited) //check if the next/current cell is not visited
             {
                cellPath.Add(currentCell);
 
                //visualization
-               currentCell.currentlyInPathFinding = true;
-               currentCell.CellVisualization.color = currentCell.makingPathCol;
-               currentCell.CellVisualization.color = currentCell.currentCellCol;
+               currentCell.SetCurrentPathfinding(true);
+               currentCell.SetCellCol(currentCell.MakingPathCol);
+               currentCell.SetCellCol(currentCell.CurrentCellCol);
             }
 
          }
@@ -145,12 +198,12 @@ public class WilsonMaze : MonoBehaviour
             for (int i = 0; i < cellPath.Count; i++)
             {
                cellPath[i].DestroyWalls(gridArray);
-               cellPath[i].visited = true;
-               cellPath[i].currentlyInPathFinding = false;
+               cellPath[i].SetVisited(true);
+               cellPath[i].SetCurrentPathfinding(false);
                unvisitedCells.Remove(cellPath[i]);
                
                //Visualization
-               cellPath[i].CellVisualization.color = cellPath[i].visitedCol;
+               cellPath[i].SetCellCol(cellPath[i].VisitedCol);
             }
             cellPath.Clear();
             
@@ -161,9 +214,9 @@ public class WilsonMaze : MonoBehaviour
                cellPath.Add(currentCell);
 
                //visualization
-               currentCell.currentlyInPathFinding = true;
-               currentCell.CellVisualization.color = currentCell.makingPathCol;
-               currentCell.CellVisualization.color = currentCell.currentCellCol;
+               currentCell.SetCurrentPathfinding(true);
+               currentCell.SetCellCol(currentCell.MakingPathCol);
+               currentCell.SetCellCol(currentCell.CurrentCellCol);
 
             }
          }
@@ -179,35 +232,21 @@ public class WilsonMaze : MonoBehaviour
    /// </summary>
    public void Regenerate()
    {
-      for (int i = 0; i < allCells.Count; i++)
-      {
-         Destroy(allCells[i].gameObject);
-      }
+      DeactivateMaze();
 
-      allCells.Clear();
-      unvisitedCells.Clear();
-      cellPath.Clear();
-
-      InstantiateAllCells();
+      ActivateAllCells();
       StartCoroutine(Generation());
    }
 
    /// <summary>
-   /// Destroys and resets the mazes properties
+   /// Deactivates and resets the mazes properties
    /// </summary>
-   public void DestroyMaze()
+   public void DeactivateMaze()
    {
-      if (allCells.Count > 0)
-      {
-         for (int i = 0; i < allCells.Count; i++)
-         {
-            Destroy(allCells[i].gameObject);
-         }
+      DeactivateAllCells();
 
-         allCells.Clear();
-         unvisitedCells.Clear();
-         cellPath.Clear();
-      }
+      unvisitedCells.Clear();
+      cellPath.Clear();
    }
 }
 

@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -7,29 +5,56 @@ using Random = UnityEngine.Random;
 /// <summary>
 /// This cell is very familiar with the DFS cell, the only difference is that it has to store a direction, I just wanted to keep the scripts separate for separate algorithms
 /// </summary>
-public class WilsonsCell : MonoBehaviour
+public class WilsonsCell : BaseCell
 {
-    //Walls
-    public GameObject up;
-    public GameObject down;
-    public GameObject left;
-    public GameObject right;
-    
+
     //Grid
-    public int gridX;
-    public int gridY;
+    public bool Visited { get; private set; }
+    public bool CurrentlyInPathFinding{ get; private set; }
+    private Vector2 direction;
     private List<WilsonsCell> adjacentCells;
-    public Vector2 direction;
-    public bool visited;
-    public bool currentlyInPathFinding;
     
     //Visualization
-    public SpriteRenderer CellVisualization;
-    public Color unvisitedCol;
-    public Color visitedCol;
-    public Color makingPathCol;
-    public Color currentCellCol;
+    [field:SerializeField]public Color UnvisitedCol { get; private set; }
+    [field:SerializeField]public Color VisitedCol { get; private set; }
+    [field:SerializeField]public Color MakingPathCol { get; private set; }
+    [field:SerializeField]public Color CurrentCellCol { get; private set; }
+    [SerializeField]private SpriteRenderer cellSprite;
 
+
+    //-------------------------------------------------SETUP VARIABLES-------------------------------------
+    /// <summary>
+    /// Visualizes and sets the visited cell
+    /// </summary>
+    public void SetVisited(bool visit)
+    {
+        Visited = visit;
+        cellSprite.color = Visited ? VisitedCol : UnvisitedCol;
+    } 
+    
+    /// <summary>
+    /// Sets the pathfinding status of the cell
+    /// </summary>
+    public void SetCurrentPathfinding(bool inPathfinding)
+    {
+        CurrentlyInPathFinding = inPathfinding;
+    } 
+    
+    /// <summary>
+    /// Sets the direction of the cell
+    /// </summary>
+    public void SetDirection(Vector2 dir)
+    {
+        direction = dir;
+    }
+
+    public void SetCellCol(Color col)
+    {
+        cellSprite.color = col;
+    }
+    
+    //-------------------------------------------------NEIGHBOURING CELLS-------------------------------------
+    
     /// <summary>
     /// Check if a cell's position is within the bounds of the grid
     /// </summary>
@@ -78,7 +103,7 @@ public class WilsonsCell : MonoBehaviour
         List<WilsonsCell> notMakingPath = new List<WilsonsCell>();
         foreach (WilsonsCell cell in adjacentCells)
         {
-            if (!cell.currentlyInPathFinding)//if the cells are not in path finding and the cells are not surrounded by cells in path finding 
+            if (!cell.CurrentlyInPathFinding)//if the cells are not in path finding and the cells are not surrounded by cells in path finding 
             {
                 notMakingPath.Add(cell);
             }
@@ -118,26 +143,26 @@ public class WilsonsCell : MonoBehaviour
         // Check if the neighboring cell is to the right
         if (direction == Vector2.right)
         {
-            Destroy(right);
-            Destroy(neighbouringWilsonCell.left);
+            right.SetActive(false);
+            neighbouringWilsonCell.left.SetActive(false);
         }
         // Check if the neighboring cell is to the left
         else if (direction == Vector2.left)
         {
-            Destroy(left);
-            Destroy(neighbouringWilsonCell.right);
+            left.SetActive(false);
+            neighbouringWilsonCell.right.SetActive(false);
         }
         // Check if the neighboring cell is above
         else if (direction == Vector2.up)
         {
-            Destroy(up);
-            Destroy(neighbouringWilsonCell.down);
+            up.SetActive(false);
+            neighbouringWilsonCell.down.SetActive(false);
         }
         // Check if the neighboring cell is below
         else if (direction == Vector2.down)
         {
-            Destroy(down);
-            Destroy(neighbouringWilsonCell.up);
+            down.SetActive(false);
+            neighbouringWilsonCell.up.SetActive(false);
         }
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class SidewinderMaze : MonoBehaviour
@@ -13,45 +14,98 @@ public class SidewinderMaze : MonoBehaviour
    private SidewinderCell[,] gridArray;
    
    //Generation
-   [SerializeField] private GameObject cellObject;
+   [SerializeField] private SidewinderCell cellObject;
    [SerializeField] private float secUntilNextCell;
    private SidewinderCell currentCell;
-   private List<SidewinderCell> allCells = new List<SidewinderCell>();
    private List<SidewinderCell> unvisitedCells = new List<SidewinderCell>();
    private List<SidewinderCell> cellCarvingPath = new List<SidewinderCell>();
+   
+   //Object Pooling
+   private Queue<SidewinderCell> pooledCells = new Queue<SidewinderCell>();
+   private Queue<SidewinderCell> activeCells = new Queue<SidewinderCell>();
+   private int amountToPool = 25;
+
+   //--------------------------------Object Pooling---------------------------------------------
+
+   private void Awake()
+   {
+      PoolCells();
+   }
+
+   /// <summary>
+   /// Instantiates new cells and adds them to the queue
+   /// </summary>
+   private void PoolCells()
+   {
+      for (int i = 0; i < amountToPool; i++)
+      {
+         SidewinderCell cellClone = Instantiate(cellObject, Vector3.zero, Quaternion.identity, transform);
+         cellClone.gameObject.SetActive(false);
+         pooledCells.Enqueue(cellClone);
+      }
+   }
+    
+   /// <summary>
+   /// Returns an inactive cell object
+   /// </summary>
+   private SidewinderCell ReturnPooledObject()
+   {
+      if (pooledCells.Count == 0)
+      {
+         PoolCells();
+      }
+      SidewinderCell newCell = pooledCells.Dequeue();
+      activeCells.Enqueue(newCell);
+      newCell.gameObject.SetActive(true);
+      return newCell;
+   }
+    
+   /// <summary>
+   /// Deactivates all active cells and makes them unvisited
+   /// </summary>
+   private void DeactivateAllCells()
+   {
+      List<SidewinderCell> activatedCells = activeCells.ToList();
+        
+      foreach (var cell in activatedCells)
+      {
+         cell.gameObject.SetActive(false);
+         cell.SetCellCol(cell.UnVisitedCol);
+         pooledCells.Enqueue(cell);
+         activeCells.Dequeue();
+      }
+   }
 
    //--------------------------------Generation---------------------------------------------
 
    
    /// <summary>
-   /// Instantiate all cells in the grid
+   /// Activate and place all cells in the grid
    /// Setup camera after
    /// </summary>
-   private void InstantiateAllCells()
+   private void ActivateAllCells()
    {
       //create the grid
       gridArray = new SidewinderCell[Width, Height];
 
-      startX = -Width/2;
-      startY = -Height/2;
+      startX = -(float)Width/2;
+      startY = -(float)Height/2;
         
-      // Instantiate all cells and set their gridX and gridY properties
+      // Activate all cells and set their gridX and gridY properties
       for (int x = 0; x < Width; x++)
       {
          for (int y = 0; y < Height; y++)
          {
-            GameObject cellClone = Instantiate(cellObject, new Vector3(startX + x, startY + y), Quaternion.identity, transform);
-            SidewinderCell sidewinderCell = cellClone.GetComponent<SidewinderCell>();
-            sidewinderCell.gridX = x;
-            sidewinderCell.gridY = y;
-            gridArray[x, y] = sidewinderCell;
+            SidewinderCell cellClone = ReturnPooledObject();
+            cellClone.transform.position = new Vector3(startX + x, startY + y);
+            cellClone.SetGridProperties(x, y);
+            gridArray[x, y] = cellClone;
             
-            allCells.Add(sidewinderCell);
-            unvisitedCells.Add(sidewinderCell);
+            unvisitedCells.Add(cellClone);
          }
       }
 
-      foreach (SidewinderCell stackItem in allCells)
+      foreach (SidewinderCell stackItem in activeCells)
       {
          stackItem.CalculateAdjacentCells(gridArray);
       }
@@ -80,7 +134,7 @@ public class SidewinderMaze : MonoBehaviour
          unvisitedCells.Remove(currentCell);
          
          //visualization
-         currentCell.CellVisualization.color = currentCell.visitedCol;
+         currentCell.SetCellCol(currentCell.VisitedCol);
          
          if(i < Width - 1)
             currentCell.DestroyWalls(Vector2.right, gridArray);
@@ -96,9 +150,9 @@ public class SidewinderMaze : MonoBehaviour
             cellCarvingPath.Add(currentCell);
             unvisitedCells.Remove(currentCell);
             
-            x = currentCell.gridX;
+            x = currentCell.GridX;
             //visualization
-            currentCell.CellVisualization.color = currentCell.makingPathCol;
+            currentCell.SetCellCol(currentCell.MakingPathCol);
             
             yield return waitSec;
             
@@ -108,7 +162,7 @@ public class SidewinderMaze : MonoBehaviour
                SidewinderCell nextDirCell = currentCell.ChooseRandomNeighbouringCell();
                
                //visualization
-               nextDirCell.CellVisualization.color = nextDirCell.nextCellCol;
+               nextDirCell.SetCellCol(nextDirCell.NextCellCol);
                
                yield return waitSec;
 
@@ -117,13 +171,13 @@ public class SidewinderMaze : MonoBehaviour
                   //add to list and make it the next current cell
                   cellCarvingPath.Add(nextDirCell);
                   currentCell = nextDirCell;
-                  x = currentCell.gridX;
-                  currentCell.CellVisualization.color = currentCell.makingPathCol;
+                  x = currentCell.GridX;
+                  currentCell.SetCellCol(currentCell.MakingPathCol);
                }
                else if (currentCell.DirectionBetweenCells(nextDirCell) == Vector2.up) //4. if the next cell is on top
                {
                   //visualization
-                  nextDirCell.CellVisualization.color = nextDirCell.visitedCol;
+                  nextDirCell.SetCellCol(nextDirCell.VisitedCol);
                      
                   //a. carve a passage up from a random cell in the list and empty the list
                   int randomInt = Random.Range(0, cellCarvingPath.Count - 1);
@@ -133,20 +187,20 @@ public class SidewinderMaze : MonoBehaviour
                   {
                      if(i<cellCarvingPath.Count - 1)
                         cellCarvingPath[i].DestroyWalls(Vector2.right, gridArray); //destroy the walls in the list
-                     cellCarvingPath[i].CellVisualization.color = cellCarvingPath[i].visitedCol;
+                     cellCarvingPath[i].SetCellCol(cellCarvingPath[i].VisitedCol);
                      unvisitedCells.Remove(cellCarvingPath[i]);
                   }
                   cellCarvingPath.Clear();
 
                   // make the next cell the current cell if it's not the end of the row
-                  if (currentCell.gridX + 1 < Width)
+                  if (currentCell.GridX + 1 < Width)
                   {
-                     currentCell = gridArray[currentCell.gridX + 1, Height - h];
+                     currentCell = gridArray[currentCell.GridX + 1, Height - h];
                      cellCarvingPath.Add(currentCell);
-                     x = currentCell.gridX;
+                     x = currentCell.GridX;
                      
                      //visualization
-                     currentCell.CellVisualization.color = currentCell.makingPathCol;
+                     currentCell.SetCellCol(currentCell.MakingPathCol);
                   }
                   else
                   {
@@ -167,34 +221,21 @@ public class SidewinderMaze : MonoBehaviour
    /// </summary>
    public void Regenerate()
    {
-      for (int i = 0; i < allCells.Count; i++)
-      {
-         Destroy(allCells[i].gameObject);
-      }
+      DeactivateMaze();
 
-      allCells.Clear();
-      unvisitedCells.Clear();
-      cellCarvingPath.Clear();
-
-      InstantiateAllCells();
+      ActivateAllCells();
       StartCoroutine(Generation());
    }
    
    /// <summary>
    /// Destroys and resets the mazes properties
    /// </summary>
-   public void DestroyMaze()
+   public void DeactivateMaze()
    {
-      if (allCells.Count > 0)
-      {
-         for (int i = 0; i < allCells.Count; i++)
-         {
-            Destroy(allCells[i].gameObject);
-         }
+      DeactivateAllCells();
 
-         allCells.Clear();
-         unvisitedCells.Clear();
-      }
+      unvisitedCells.Clear();
+      cellCarvingPath.Clear();
    }
-   
+
 }

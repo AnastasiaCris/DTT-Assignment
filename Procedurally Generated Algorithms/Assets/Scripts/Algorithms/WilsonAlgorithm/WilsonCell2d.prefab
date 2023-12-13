@@ -345,9 +345,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5463982969809590716}
-  - component: {fileID: 7382395032879503962}
+  - component: {fileID: 4512285537973460692}
   m_Layer: 0
-  m_Name: DFSCell2d
+  m_Name: WilsonCell2d
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -373,7 +373,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7382395032879503962
+--- !u!114 &4512285537973460692
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -382,21 +382,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 5463982969809590707}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 060f64c4fa643d249afe497b875b8d19, type: 3}
+  m_Script: {fileID: 11500000, guid: 4067026b98a1ef247b955595e13a5412, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   up: {fileID: 5463982969316986128}
   down: {fileID: 5463982969251843170}
   left: {fileID: 5463982969941372731}
   right: {fileID: 5463982969560130774}
-  gridX: 0
-  gridY: 0
-  adjacentCells: []
-  visited: 0
-  CellVisualization: {fileID: 2794742722535796451}
-  unvisitedCol: {r: 1, g: 1, b: 1, a: 1}
-  visitedCol: {r: 0.4811321, g: 0.4811321, b: 0.4811321, a: 1}
-  goingThroughCol: {r: 0, g: 0, b: 0, a: 1}
+  <UnvisitedCol>k__BackingField: {r: 1, g: 1, b: 1, a: 1}
+  <VisitedCol>k__BackingField: {r: 0, g: 0, b: 0, a: 1}
+  <MakingPathCol>k__BackingField: {r: 0.48235294, g: 0.48235294, b: 0.48235294, a: 1}
+  <CurrentCellCol>k__BackingField: {r: 0.39215687, g: 0.003921569, b: 0.62352943, a: 1}
+  cellSprite: {fileID: 2794742722535796451}
 --- !u!1 &5463982969941372731
 GameObject:
   m_ObjectHideFlags: 0

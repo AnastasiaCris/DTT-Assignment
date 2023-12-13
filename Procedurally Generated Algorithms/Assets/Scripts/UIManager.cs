@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour
 {
     //Camera Zoom
+    [SerializeField]private Camera cam;
     [SerializeField] private Scrollbar camZoomScrollbar;
     private float maxZoom = 5.5f;
     private float minZoom;
@@ -14,6 +15,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private float camPanSpeed = 2f;
     private Vector3 lastMousePosition;
     private bool isPanning;
+
+    private int maxSize = 50; //max width and height of the grid
 
 
     //--------------------------------Camera---------------------------------------------
@@ -27,7 +30,6 @@ public class UIManager : MonoBehaviour
     /// </summary>
     public void SetUpCamera(int width,int height)
     {
-        Camera cam = Camera.main;
         
         int biggestNr = height > width ? height : width; //get the biggest nr between height and width
         
@@ -47,19 +49,19 @@ public class UIManager : MonoBehaviour
     /// <summary>
     /// Using the scrollbar - it zooms the camera in and out
     /// </summary>
-    public void ZoomCamera()
+    public void ZoomCamera(float scrollValue)
     {
-        float currentZoom = Camera.main.orthographicSize;
+        float currentZoom = cam.orthographicSize;
 
-        currentZoom = minZoom + (maxZoom - minZoom) * camZoomScrollbar.value;
+        currentZoom = minZoom + (maxZoom - minZoom) * scrollValue;
 
-        Camera.main.orthographicSize = currentZoom;
+        cam.orthographicSize = currentZoom;
     }
 
     /// <summary>
     /// Moves the camera in the direction the user drags the mouse across the screen
     /// </summary>
-    public void MoveCamera()
+    private void MoveCamera()
     {
         if (Input.GetMouseButtonDown(0))
         {
@@ -102,9 +104,9 @@ public class UIManager : MonoBehaviour
             parseW = 2;
             textField.text = parseW.ToString();
         }
-        if (parseW >= 250) //width can't be bigger then 250
+        if (parseW >= maxSize) //width can't be bigger then max size
         {
-            parseW = 250;
+            parseW = maxSize;
             textField.text = parseW.ToString();
         }
 
@@ -129,9 +131,9 @@ public class UIManager : MonoBehaviour
             parseH = 2;
             textField.text = parseH.ToString();
         }
-        if (parseH >= 250) //height can't be bigger then 250
+        if (parseH >= maxSize) //height can't be bigger then max size
         {
-            parseH = 250;
+            parseH = maxSize;
             textField.text = parseH.ToString();
         }
 

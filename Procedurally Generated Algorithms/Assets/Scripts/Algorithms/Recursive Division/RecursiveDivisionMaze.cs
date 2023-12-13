@@ -4,7 +4,6 @@ using Unity.Mathematics;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-//Coroutines are made instead of functions for the sake of visualization
 public class RecursiveDivisionMaze : MonoBehaviour
 {
     
@@ -25,8 +24,8 @@ public class RecursiveDivisionMaze : MonoBehaviour
     
     private void SetUpGrid()
     {
-        startX = -Width / 2;
-        startY = -Height / 2;
+        startX = -(float)Width / 2;
+        startY = -(float)Height / 2;
         
         //instantiate outside walls
         for (int x = 0; x < Width; x++)

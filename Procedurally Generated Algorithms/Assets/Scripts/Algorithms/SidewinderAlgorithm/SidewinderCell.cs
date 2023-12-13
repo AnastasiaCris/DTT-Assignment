@@ -1,26 +1,31 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SidewinderCell : MonoBehaviour
+public class SidewinderCell : BaseCell
 {
-    //Walls
-    public GameObject up;
-    public GameObject down;
-    public GameObject left;
-    public GameObject right;
     
     //Grid
-    public int gridX;
-    public int gridY;
     private List<SidewinderCell> adjacentCells;
+    public int GridX { get { return gridX;}}
     
     //Visualization
-    public SpriteRenderer CellVisualization;
-    public Color visitedCol;
-    public Color makingPathCol;
-    public Color nextCellCol;
-    
+    [SerializeField] private SpriteRenderer CellVisualization;
+    [field:SerializeField]public Color UnVisitedCol { get; private set; }
+    [field:SerializeField]public Color VisitedCol { get; private set; }
+    [field:SerializeField]public Color MakingPathCol { get; private set; }
+    [field:SerializeField]public Color NextCellCol { get; private set; }
 
+
+    //-------------------------------------------------SETUP VARIABLES-------------------------------------
+
+    public void SetCellCol(Color col)
+    {
+        CellVisualization.color = col;
+    }
+    
+    //-------------------------------------------------NEIGHBOURING CELLS-------------------------------------
+
+    
     /// <summary>
     /// Check if a cell's position is within the bounds of the grid
     /// </summary>
@@ -79,14 +84,15 @@ public class SidewinderCell : MonoBehaviour
         // Check if the neighboring cell is to the right
         if (dir == Vector2.right)
         {
-            Destroy(right);
-            Destroy(neighbouringCell.left);
+            right.SetActive(false);
+            neighbouringCell.left.SetActive(false);
         }
         // Check if the neighboring cell is on top
         else if (dir == Vector2.up)
         {
-            Destroy(up);
-            Destroy(neighbouringCell.down);
+            up.SetActive(false);
+            neighbouringCell.down.SetActive(false);
         }
     }
+
 }
